@@ -38,7 +38,7 @@ dependencies:
         - pyzmq
         - tqdm
         - msgpack-python
-        - mujoco_py==0.5.7
+        - mujoco_py==2.0.5.2
         - cached_property
         - line_profiler
         - cloudpickle
@@ -51,7 +51,7 @@ dependencies:
         # See the Dockerfile for rllab.
         # - git+https://github.com/rll/rllab.git@b3a28992eca103cab3cb58363dd7a4bb07f250a0#egg=rllab
         - awscli
-        - git+https://github.com/openai/gym.git@v0.7.4#egg=gym
+        - gym=0.15.4
         - pyglet
         - git+https://github.com/neocxi/prettytensor.git
         - jupyter

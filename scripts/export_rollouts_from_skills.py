@@ -57,5 +57,9 @@ if __name__ == "__main__":
                     actions.append(path["actions"])
 
         with open(rollouts_filename, "wb") as f:
-            data = {"observations": observations, "actions": actions}
+            data = {
+                "observations": observations,
+                "actions": actions,
+                "env_id": env.wrapped_env.env_id,
+            }
             pickle.dump(data, f)
