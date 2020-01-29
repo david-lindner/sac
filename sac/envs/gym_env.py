@@ -38,7 +38,7 @@ class CappedCubicVideoSchedule(object):
     # Copied from gym, since this method is frequently moved around
     def __call__(self, count):
         if count < 1000:
-            return int(round(count ** (1. / 3))) ** 3 == count
+            return int(round(count ** (1.0 / 3))) ** 3 == count
         else:
             return count % 1000 == 0
 
@@ -57,11 +57,20 @@ class NoVideoSchedule(object):
 
 
 class GymEnv(Env, Serializable):
-    def __init__(self, env_name, record_video=False, video_schedule=None, log_dir=None, record_log=False,
-                 force_reset=True):
+    def __init__(
+        self,
+        env_name,
+        record_video=False,
+        video_schedule=None,
+        log_dir=None,
+        record_log=False,
+        force_reset=True,
+    ):
         if log_dir is None:
             if logger.get_snapshot_dir() is None:
-                logger.log("Warning: skipping Gym environment monitoring since snapshot_dir not configured.")
+                logger.log(
+                    "Warning: skipping Gym environment monitoring since snapshot_dir not configured."
+                )
             else:
                 log_dir = os.path.join(logger.get_snapshot_dir(), "gym_log")
         Serializable.quick_init(self, locals())
@@ -87,14 +96,16 @@ class GymEnv(Env, Serializable):
             else:
                 if video_schedule is None:
                     video_schedule = CappedCubicVideoSchedule()
-            self.env = gym.wrappers.Monitor(self.env, log_dir, video_callable=video_schedule, force=True)
+            self.env = gym.wrappers.Monitor(
+                self.env, log_dir, video_callable=video_schedule, force=True
+            )
             self.monitoring = True
 
         self._observation_space = convert_gym_space(env.observation_space)
         logger.log("observation space: {}".format(self._observation_space))
         self._action_space = convert_gym_space(env.action_space)
         logger.log("action space: {}".format(self._action_space))
-        self._horizon = env.spec.tags['wrapper_config.TimeLimit.max_episode_steps']
+        self._horizon = env.spec.tags["wrapper_config.TimeLimit.max_episode_steps"]
         self._log_dir = log_dir
         self._force_reset = force_reset
 
@@ -113,6 +124,7 @@ class GymEnv(Env, Serializable):
     def reset(self):
         if self._force_reset and self.monitoring:
             from gym.wrappers.monitoring import Monitor
+
             assert isinstance(self.env, Monitor)
             recorder = self.env.stats_recorder
             if recorder is not None:
@@ -123,15 +135,16 @@ class GymEnv(Env, Serializable):
         next_obs, reward, done, info = self.env.step(action)
         return Step(next_obs, reward, done, **info)
 
-    def render(self, mode='human', close=False):
-        return self.env._render(mode, close)
+    def render(self, mode="human", close=False):
+        return self.env.render(mode=mode)
         # self.env.render()
 
     def terminate(self):
         if self.monitoring:
             self.env._close()
             if self._log_dir is not None:
-                print("""
+                print(
+                    """
     ***************************
 
     Training finished! You can upload results to OpenAI Gym by running the following command:
@@ -139,5 +152,6 @@ class GymEnv(Env, Serializable):
     python scripts/submit_gym.py %s
 
     ***************************
-                """ % self._log_dir)
-
+                """
+                    % self._log_dir
+                )
